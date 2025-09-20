@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { LayoutDashboard, Bot, Presentation, Plus } from "lucide-react";
@@ -49,10 +50,15 @@ const projects = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { open } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader>RepoForge</SidebarHeader>
+      {open && (
+        <SidebarHeader>
+          <div className="text-primary text-xl font-bold">RepoForge</div>
+        </SidebarHeader>
+      )}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -105,20 +111,22 @@ export default function AppSidebar() {
 
               <div className="h-2"></div>
 
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/create">
-                    <Button
-                      size="sm"
-                      variant={"outline"}
-                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-900 hover:bg-gray-900 hover:text-white"
-                    >
-                      <Plus />
-                      Create Project
-                    </Button>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {open && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/create">
+                      <Button
+                        size="sm"
+                        variant={"outline"}
+                        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-900 hover:bg-gray-900 hover:text-white"
+                      >
+                        <Plus />
+                        Create Project
+                      </Button>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
