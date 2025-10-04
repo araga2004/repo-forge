@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  Bot,
+  CreditCard,
+  LayoutDashboard,
+  Plus,
+  Presentation,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -12,119 +22,121 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import { LayoutDashboard, Bot, Presentation, Plus } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-
-const items = [
-  {
-    name: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Q&A",
-    url: "/qa",
-    icon: Bot,
-  },
-  {
-    name: "Meetings",
-    url: "/meetings",
-    icon: Presentation,
-  },
-];
-
-const projects = [
-  {
-    name: "Project 1",
-  },
-  {
-    name: "Project 2",
-  },
-  {
-    name: "Project 3",
-  },
-];
+import useProject from "@/hooks/use-project";
 
 export default function AppSidebar() {
+  const router = useRouter();
   const pathname = usePathname();
   const { open } = useSidebar();
+  const { projects, projectId, setProjectId } = useProject();
+  const items = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Q&A",
+      url: "/qa",
+      icon: Bot,
+    },
+    {
+      title: "Meetings",
+      url: "/meetings",
+      icon: Presentation,
+    },
+    {
+      title: "Billing",
+      url: "/billing",
+      icon: CreditCard,
+    },
+  ];
 
   return (
     <Sidebar collapsible="icon" variant="floating">
-      {open && (
-        <SidebarHeader>
-          <div className="text-primary text-xl font-bold">RepoForge</div>
-        </SidebarHeader>
-      )}
+      <SidebarHeader>
+        <div className="flex items-center gap-2">
+          <img src={"/favicon.ico"} alt="logo" className="size-8" />
+          {open && (
+            <h1 className="text-primary/80 text-xl font-bold">DIONYSUS</h1>
+          )}
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href={item.url}
-                      className={cn(
-                        "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                        pathname === item.url
-                          ? "bg-primary text-white"
-                          : "text-gray-700 hover:bg-gray-800 hover:text-black",
-                      )}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link
+                        href={item.url}
+                        className={cn({
+                          "!bg-primary !text-white": pathname === item.url,
+                        })}
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projects.map((project) => (
-                <SidebarMenuItem key={project.name}>
-                  <SidebarMenuButton asChild>
-                    <div>
+              {projects?.map((project: { id: string; name: string }) => {
+                return (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton asChild>
                       <div
-                        className={cn(
-                          "text-primary flex size-6 items-center justify-center rounded-sm border bg-white text-sm",
-                          {
-                            "bg-primary text-white": true,
-                          },
-                        )}
+                        onClick={() => {
+                          setProjectId(project.id);
+                          if (pathname !== "/dashboard") {
+                            router.push("/dashboard");
+                          }
+                        }}
+                        className={cn("cursor-pointer", {
+                          "bg-primary/20": project.id === projectId,
+                        })}
                       >
-                        {project.name[0]}
+                        <div
+                          className={cn(
+                            "text-primary -ml-1 flex size-6 items-center justify-center rounded-sm border bg-white text-sm",
+                            {
+                              "bg-primary text-white": project.id === projectId,
+                            },
+                          )}
+                        >
+                          <span className="p-3">{project.name[0]}</span>
+                        </div>
+                        <span>{project.name}</span>
                       </div>
-                      <span className="ml-2 text-sm">{project.name}</span>
-                    </div>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
               <div className="h-2"></div>
-
               {open && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href="/create">
-                      <Button
-                        size="sm"
-                        variant={"outline"}
-                        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-900 hover:bg-gray-900 hover:text-white"
-                      >
-                        <Plus />
-                        Create Project
-                      </Button>
-                    </Link>
-                  </SidebarMenuButton>
+                  <Link href={"/create"}>
+                    <Button
+                      size={"sm"}
+                      variant="outline"
+                      className="w-fit px-2"
+                    >
+                      <Plus />
+                      Create Project
+                    </Button>
+                  </Link>
                 </SidebarMenuItem>
               )}
             </SidebarMenu>
